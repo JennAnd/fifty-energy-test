@@ -14,9 +14,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# Main URL configuration for the Django project with admin and API routes
 from django.contrib import admin
 from django.urls import path
+from ninja import NinjaAPI # NinjaAPI instance that will handle API endpoints
+
+api = NinjaAPI()
+
+@api.get("/hello")
+def hello(request):
+    return {"message": "Hello Jennifer"} # Test to verify Django Ninja is working
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/", api.urls),
 ]
