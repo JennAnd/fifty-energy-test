@@ -6,6 +6,8 @@ from .schemas import SensorCreate, SensorOut
 # from .auth_bearer import TokenAuth # Import TokenAuth class to protect endpoints
 from ninja.security import HttpBearer
 from rest_framework.authtoken.models import Token
+from django.db.models import Q # Filtering with multiple fields
+from typing import Optional
 
 # Checks if the token belongs to a real user
 class TokenAuth(HttpBearer):
@@ -21,11 +23,15 @@ router = Router()
 
 # Endpoint to get a list of all sensors from the database
 @router.get("/sensors", response=List[SensorOut], auth=TokenAuth()) # Requires valid endpoint to access this endpoint
-def list_sensors(request):
+def list_sensors(request, q: Optional[str]= None):
     sensors = Sensor.objects.filter(owner=request.auth) # Only show sensors that belongs to logged-in user
+    if q:
+        sensors = sensors.filter( # Filter sensors by name or type
+            Q(name__icontains=q) | Q(type__icontains=q)
+        )
     return sensors
 
-# Create a new sensor using data from the request
+# Logged-in user can create a new sensor in the database
 @router.post("/sensors", response=SensorOut, auth=TokenAuth())
 def create_sensor(request, data: SensorCreate):
     sensor = Sensor.objects.create(**data.dict(), owner=request.auth) # Creates a new sensor using the data from the schema
