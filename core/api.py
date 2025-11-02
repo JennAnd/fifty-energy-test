@@ -3,8 +3,19 @@ from ninja import Router
 from .models import Sensor
 from typing import List
 from .schemas import SensorCreate, SensorOut
-from .auth_bearer import TokenAuth # Import TokenAuth class to protect endpoints
+# from .auth_bearer import TokenAuth # Import TokenAuth class to protect endpoints
+from ninja.security import HttpBearer
+from rest_framework.authtoken.models import Token
 
+# Checks if the token belongs to a real user
+class TokenAuth(HttpBearer):
+    def authenticate(self, request, token): # Runs when someone sends a request with a token
+        try:
+            user = Token.objects.get(key=token).user
+            return user # If correct token return the user
+        except Token.DoesNotExist:
+            return None
+    
 # Create a router to handle API endpoints related to sensors
 router = Router()
 
