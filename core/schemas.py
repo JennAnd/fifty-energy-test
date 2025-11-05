@@ -1,6 +1,7 @@
 # Schemas define how data is structured when sent to or sent from the API
 from ninja import Schema
 from datetime import datetime
+from typing import Optional
 
 # Base schema for common sensor fields
 class SensorBase(Schema):
@@ -19,12 +20,12 @@ class SensorOut(SensorBase):
 # Base schema for reading data like temperature and humidity
 class ReadingBase(Schema):
     temperature: float
-    humidity: float = None
+    humidity: Optional[float] = None
     timestamp: datetime
 
 # Used when adding a new reading for a sensor (POST)
 class ReadingCreate(ReadingBase):
-    sensor_id: int
+    pass # sensor_id comes from url not the body
 
 # Used when returning readings from the API (GET)
 class ReadingOut(ReadingBase):

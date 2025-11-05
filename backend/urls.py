@@ -19,11 +19,13 @@ from django.contrib import admin
 from django.urls import path
 from ninja import NinjaAPI # NinjaAPI instance that will handle API endpoints
 from core.api import router as core_router # import router
+from core.api import readings_router
 from core.auth import router as auth_router
 
 api = NinjaAPI()
 api.add_router("/", core_router) # Connect core app router to the main API
 api.add_router("/auth", auth_router)
+api.add_router("/", readings_router) # Readings endpoint
 
 @api.get("/hello")
 def hello(request):
