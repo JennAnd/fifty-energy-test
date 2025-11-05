@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<h1>Login</h1>
+
+  <!-- Login form -->
+  <form id="loginForm">
+    <input id="username" type="text" placeholder="Username" required />
+    <input id="password" type="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+
+  <script>
+     // Handle login form without reloading the page
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+     
+      // Get values from input fields
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        // Send POST request to Django API for authentication
+        const res = await fetch('http://localhost:8000/api/auth/token/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // Send username and password as JSON
+          body: JSON.stringify({ username, password })
+        });
+
+        // Check if response is successful
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || 'Login failed');
+        }
+        // Parse respons and get the token
+        const data = await res.json();
+        if (!data.token) throw new Error('No token in response');
+
+        // Store token
+        localStorage.setItem('token', data.token);
+
+        alert('Login successful!');
+        // Redirect to sensors page
+        location.href = 'sensors.html';
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+  </script>
+
+</body>
+</html>
