@@ -9,3 +9,6 @@ pydantic_core==2.27.2
 python-dotenv==1.0.1
 sqlparse==0.5.3
 typing_extensions==4.13.2
+pytest
+pytest-django
+
