@@ -1,0 +1,101 @@
+/*----- Register Page Styles (register.html) -----*/
+
+/* Base layout for register page */
+html, body { height: 100%; }
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Title */
+h1 {
+  text-align: center;
+  margin-bottom: 18px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--accent);
+}
+
+/* Register form card */
+#registerForm {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(79, 107, 87, 0.10);
+  padding: 32px 28px 28px;
+  display: grid;
+  gap: 14px;
+  animation: fadeInUp .22s ease-out both;
+}
+
+/* Inputs */
+#registerForm input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fffefb;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+  font-size: 15px;
+}
+
+#registerForm input::placeholder { color: var(--muted); }
+
+#registerForm input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+/* Submit button */
+#registerForm button {
+  margin-top: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent-2);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .05s ease, background .15s ease, box-shadow .15s ease;
+  box-shadow: 0 6px 14px rgba(140, 106, 74, .22);
+}
+
+#registerForm button:hover { background: #7a573b; }
+#registerForm button:active { transform: translateY(1px); }
+
+body > p {
+  margin-top: 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+body > p a {
+  margin-left: 8px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color .15s ease;
+}
+
+body > p a:hover {
+  text-decoration: underline;
+  color: var(--accent-2); 
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
