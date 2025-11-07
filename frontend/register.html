@@ -1,51 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register</title>
-    <link rel="stylesheet" href="css/index.css">
-    <link rel="stylesheet" href="css/register.css">
-
-</head>
-<body>
-
-  <!-- Register form -->
-  <form id="registerForm">
-    <h1>Sign up</h1>
-    <input id="username" type="text" placeholder="Username" required />
-    <input id="password" type="password" placeholder="Password" required />
-    <button type="submit">Create account</button>
-    <p>Already have an account? <a href="login.html">Log in</a></p>
-  </form>
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/register.css" />
+  </head>
+  <body>
+    <!-- Register form -->
+    <form id="registerForm">
+      <h1>Sign up</h1>
+      <input id="username" type="text" placeholder="Username" required />
+      <input id="password" type="password" placeholder="Password" required />
+      <button type="submit">Create account</button>
+      <p>Already have an account? <a href="login.html">Log in</a></p>
+    </form>
 
     <script>
-    // Handle register form without reloading the page
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+      // Handle register form without reloading the page
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-      // Get values from input fields
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+          // Get values from input fields
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
 
-      try {
-        // Send POST request to Django API with username & password in URL
-        const res = await fetch(
-          `http://localhost:8000/api/auth/register?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
-          { method: 'POST' }
-        );
+          try {
+            // Send POST request to Django API with username & password in URL
+            const res = await fetch(
+              `http://localhost:8000/api/auth/register?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+              { method: "POST" }
+            );
 
-        // Check if response is successful
-        if (!res.ok) throw new Error('Failed to register');
+            // Check if response is successful
+            if (!res.ok) throw new Error("Failed to register");
 
-        alert('Account created! Please log in.');
-        // Redirect to login page
-        location.href = 'login.html';
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    });
-  </script>
-
-</body>
+            alert("Account created! Please log in.");
+            // Redirect to login page
+            location.href = "login.html";
+          } catch (err) {
+            alert("Error: " + err.message);
+          }
+        });
+    </script>
+  </body>
 </html>

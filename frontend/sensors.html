@@ -1,130 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sensors</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sensors</title>
+    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="./css/sensors.css" />
+  </head>
+  <body>
     <!------- Create new sensors and view sensors ------->
-  <h1>Sensors</h1>
+    <div class="container">
+      <header>
+        <h1>Sensors</h1>
+        <p><a href="login.html">Log out</a></p>
+      </header>
 
-  <!-- Create a new sensor form -->
-  <form id="createForm">
-    <input id="name" placeholder="Name" required />
-    <input id="type" placeholder="Type" required />
-    <button type="submit">Add sensor</button>
-  </form>
+      <!-- Create a new sensor form -->
+      <form id="createForm" class="sensor-form">
+        <input id="name" placeholder="Name" required />
+        <input id="type" placeholder="Type" required />
+        <button type="submit">Add sensor</button>
+      </form>
 
-  <hr/>
+      <hr />
 
-  <!-- List of all sensors for this user -->
-  <ul id="list"></ul>
+      <!-- List of all sensors for this user -->
+      <ul id="list"></ul>
+    </div>
 
-  <p><a href="login.html">Log out</a></p>
-
-  <script>
-    // Get saved token or redirect if not logged in
-    function getToken() {
-      const t = localStorage.getItem('token');
-      if (!t) {
-        alert('You must log in first.');
-        location.href = 'login.html';
-        throw new Error('No token found');
-      }
-      return t;
-    }
-
-    // Load all sensors that belong to the logged-in user
-    async function loadSensors() {
-      const token = getToken();
-      try {
-        // GET /api/sensors (requires Bearer token)
-        const res = await fetch('http://localhost:8000/api/sensors', {
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-
-        // Handle invalid token
-        if (res.status === 401) {
-          alert('Session expired. Please log in again.');
-          localStorage.removeItem('token');
-          location.href = 'login.html';
-          return;
+    <script>
+      // Get saved token or redirect if not logged in
+      function getToken() {
+        const t = localStorage.getItem("token");
+        if (!t) {
+          alert("You must log in first.");
+          location.href = "login.html";
+          throw new Error("No token found");
         }
+        return t;
+      }
 
-        // Handle other errors
-        if (!res.ok) throw new Error('Failed to load sensors');
-
-        // Parse JSON response
-        const data = await res.json();
-        // Support both array and paginated formats
-        const items = Array.isArray(data) ? data : (data.items || []);
-
-        // Show sensors in a list
-        const ul = document.getElementById('list');
-        ul.innerHTML = '';
-        if (items.length === 0) {
-          ul.innerHTML = '<li>No sensors found.</li>';
-        } else {
-          items.forEach(s => {
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="sensor.html?id=${s.id}">${s.name}</a> — ${s.type}`;
-            ul.appendChild(li);
+      // Load all sensors that belong to the logged-in user
+      async function loadSensors() {
+        const token = getToken();
+        try {
+          // GET /api/sensors (requires Bearer token)
+          const res = await fetch("http://localhost:8000/api/sensors", {
+            headers: { Authorization: "Bearer " + token },
           });
+
+          // Handle invalid token
+          if (res.status === 401) {
+            alert("Session expired. Please log in again.");
+            localStorage.removeItem("token");
+            location.href = "login.html";
+            return;
+          }
+
+          // Handle other errors
+          if (!res.ok) throw new Error("Failed to load sensors");
+
+          // Parse JSON response
+          const data = await res.json();
+          // Support both array and paginated formats
+          const items = Array.isArray(data) ? data : data.items || [];
+
+          // Show sensors in a list
+          const ul = document.getElementById("list");
+          ul.innerHTML = "";
+          if (items.length === 0) {
+            ul.innerHTML = "<li>No sensors found.</li>";
+          } else {
+            items.forEach((s) => {
+              const li = document.createElement("li");
+              li.innerHTML = `
+  <span class="name"><a href="sensor.html?id=${s.id}">${s.name}</a></span>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="type">${s.type}</span>
+`;
+              ul.appendChild(li);
+            });
+          }
+        } catch (err) {
+          alert("Error: " + err.message);
         }
-
-      } catch (err) {
-        alert('Error: ' + err.message);
       }
-    }
 
-    // Handle create sensor form
-    document.getElementById('createForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const token = getToken();
+      // Handle create sensor form
+      document
+        .getElementById("createForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const token = getToken();
 
-      // Get input values
-      const name = document.getElementById('name').value.trim();
-      const type = document.getElementById('type').value.trim();
-      if (!name || !type) return;
+          // Get input values
+          const name = document.getElementById("name").value.trim();
+          const type = document.getElementById("type").value.trim();
+          if (!name || !type) return;
 
-      try {
-        // POST /api/sensors with JSON body
-        const res = await fetch('http://localhost:8000/api/sensors', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ name, type })
+          try {
+            // POST /api/sensors with JSON body
+            const res = await fetch("http://localhost:8000/api/sensors", {
+              method: "POST",
+              headers: {
+                Authorization: "Bearer " + token,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name, type }),
+            });
+
+            // Handle invalid token
+            if (res.status === 401) {
+              alert("Session expired. Please log in again.");
+              localStorage.removeItem("token");
+              location.href = "login.html";
+              return;
+            }
+
+            // Handle other errors
+            if (!res.ok) {
+              const text = await res.text();
+              throw new Error(text || "Failed to create sensor");
+            }
+
+            // If success, reload list and clear input fields
+            await loadSensors();
+            document.getElementById("name").value = "";
+            document.getElementById("type").value = "";
+          } catch (err) {
+            alert("Error: " + err.message);
+          }
         });
 
-        // Handle invalid token
-        if (res.status === 401) {
-          alert('Session expired. Please log in again.');
-          localStorage.removeItem('token');
-          location.href = 'login.html';
-          return;
-        }
-
-        // Handle other errors
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || 'Failed to create sensor');
-        }
-
-        // If success, reload list and clear input fields
-        await loadSensors();
-        document.getElementById('name').value = '';
-        document.getElementById('type').value = '';
-
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    });
-
-    // Load sensors automatically when the page opens
-    loadSensors();
-  </script>
-</body>
+      // Load sensors automatically when the page opens
+      loadSensors();
+    </script>
+  </body>
 </html>

@@ -1,5 +1,5 @@
 /* ----- For all pages and index.html ----- */
-   
+
 /*  Color system */
 :root {
   --bg: #f6f2ea;
@@ -12,16 +12,27 @@
   --focus: #b7ceb8;
 }
 
-html, body { height: 100%; }
+html,
+body {
+  height: 100%;
+}
 
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font:
+    16px/1.45 system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   color: var(--accent);
   margin-top: 0;
   letter-spacing: 0.3px;
@@ -45,7 +56,7 @@ p {
 a {
   color: var(--accent);
   text-decoration: none;
-  transition: color .15s ease;
+  transition: color 0.15s ease;
 }
 
 a:hover {
@@ -62,14 +73,14 @@ a:hover {
 /* Welcome card (index page) */
 .welcome-card {
   max-width: 600px;
-  margin: 120px auto; 
+  margin: 120px auto;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: 0 10px 24px rgba(79, 107, 87, 0.1);
   padding: 40px 32px;
   text-align: center;
-  animation: fadeInUp .25s ease-out both;
+  animation: fadeInUp 0.25s ease-out both;
 }
 
 .welcome-card h1 {
@@ -91,12 +102,18 @@ a:hover {
   border-radius: 10px;
   font-weight: 600;
   text-decoration: none;
-  transition: background .15s ease, transform .05s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.05s ease;
   margin: 0 6px;
 }
 
-.btn:hover { background: #425b4b; }
-.btn:active { transform: translateY(1px); }
+.btn:hover {
+  background: #425b4b;
+}
+.btn:active {
+  transform: translateY(1px);
+}
 
 .btn.secondary {
   background: var(--accent-2);
@@ -107,6 +124,12 @@ a:hover {
 
 /* Animation */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

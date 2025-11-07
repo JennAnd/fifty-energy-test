@@ -1,0 +1,174 @@
+/*----- Sensors Page Styles (sensors.html) -----*/
+
+/* Layout */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    16px/1.45 system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+/* Main container */
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(79, 107, 87, 0.1);
+  padding: 32px 28px 28px;
+  animation: fadeInUp 0.22s ease-out both;
+}
+
+/* Header (title + logout) */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+header h1 {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.logout {
+  position: absolute;
+  right: 0;
+  top: 0;
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 15px;
+  transition: color 0.15s ease;
+}
+
+.logout:hover {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+
+/* Form for creating new sensors */
+.sensor-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+/* Inputs */
+.sensor-form input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fffefb;
+  outline: none;
+  font-size: 15px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.sensor-form input::placeholder {
+  color: var(--muted);
+}
+
+.sensor-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+/* Button */
+.sensor-form button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.05s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+  box-shadow: 0 6px 14px rgba(79, 107, 87, 0.22);
+}
+
+.sensor-form button:hover {
+  background: #425b4b;
+}
+
+.sensor-form button:active {
+  transform: translateY(1px);
+}
+
+/* Sensors list */
+#list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* name | sep tar all luft | type */
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+#list li:last-child {
+  border-bottom: none;
+}
+
+/* Sensor name link */
+#list .name a {
+  text-decoration: none;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+#list .name a:hover {
+  text-decoration: underline;
+}
+
+#list .sep {
+  height: 0;
+  border-bottom: 0;
+  opacity: 0.9;
+}
+
+/* Type text */
+#list .type {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
