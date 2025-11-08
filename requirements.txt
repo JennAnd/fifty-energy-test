@@ -11,4 +11,5 @@ sqlparse==0.5.3
 typing_extensions==4.13.2
 pytest
 pytest-django
+django-cors-headers==4.4.0
 
