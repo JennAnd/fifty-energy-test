@@ -86,17 +86,24 @@
           // Show sensors in a list
           const ul = document.getElementById("list");
           ul.innerHTML = "";
+
+          // If no sensors are found, show a message
           if (items.length === 0) {
             ul.innerHTML = "<li>No sensors found.</li>";
           } else {
+            // Loop through each sensor from the API response
             items.forEach((s) => {
               const li = document.createElement("li");
+
+              // Each sensor shows name, type and two buttons (Edit / Delete)
               li.innerHTML = `
   <span class="name"><a href="sensor.html?id=${s.id}">${s.name}</a></span>
   <span class="sep" aria-hidden="true"></span>
   <span class="type">${s.model ?? s.type ?? ""}</span>
-
+  <button onclick="editSensor(${s.id}, '${s.name.replace(/'/g, "\\'")}', '${(s.model ?? s.type ?? "").replace(/'/g, "\\'")}')">Edit</button>
+  <button onclick="deleteSensor(${s.id})">Delete</button>
 `;
+
               ul.appendChild(li);
             });
           }
@@ -150,6 +157,74 @@
             alert("Error: " + err.message);
           }
         });
+
+      // Edit a sensor (PUT), use PUT when update or replace an existing item in the database
+      async function editSensor(id, curName, curType) {
+        const token = getToken(); // Get the saved login token
+
+        // Ask user for new name and type
+        const newName = prompt("New sensor name:", curName);
+        if (newName === null) return;
+        const newType = prompt("New sensor type/model:", curType);
+        if (newType === null) return;
+
+        // Send PUT request to update sensor data
+        const res = await fetch(`http://localhost:8000/api/sensors/${id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: newName.trim(), type: newType.trim() }),
+        });
+
+        // If token expired, log user out
+        if (res.status === 401) {
+          alert("Session expired. Please log in again.");
+          localStorage.removeItem("token");
+          location.href = "login.html";
+          return;
+        }
+
+        // If update fail, show message
+        if (!res.ok) {
+          const text = await res.text();
+          alert("Failed to update: " + (text || res.status));
+          return;
+        }
+        loadSensors(); // reload list
+      }
+
+      // Delete a sensor (DELETE)
+      async function deleteSensor(id) {
+        const token = getToken();
+
+        // Ask user to confirm before deleting
+        if (!confirm("Delete this sensor (and its readings)?")) return;
+
+        // Send DELETE request to backend
+        const res = await fetch(`http://localhost:8000/api/sensors/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: "Bearer " + token },
+        });
+
+        // Handle expired or invalid token
+        if (res.status === 401) {
+          alert("Session expired. Please log in again.");
+          localStorage.removeItem("token");
+          location.href = "login.html";
+          return;
+        }
+
+        // If delete fails, show message
+        if (res.status !== 204) {
+          const text = await res.text();
+          alert("Failed to delete: " + (text || res.status));
+          return;
+        }
+        loadSensors(); // reload list
+      }
+
       // When user clicks Search
       document.getElementById("searchForm").addEventListener("submit", (e) => {
         e.preventDefault(); // Stop page from reloading

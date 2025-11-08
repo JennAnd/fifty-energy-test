@@ -126,11 +126,10 @@ header h1 {
 }
 
 #list li {
-  display: grid;
-  grid-template-columns: auto 1fr auto; /* name | sep tar all luft | type */
+  display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 18px;
+  padding: 18px 20px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -150,6 +149,7 @@ header h1 {
 }
 
 #list .sep {
+  flex: 1;
   height: 0;
   border-bottom: 0;
   opacity: 0.9;
@@ -159,6 +159,42 @@ header h1 {
 #list .type {
   color: var(--muted);
   white-space: nowrap;
+}
+
+/* Edit & Delete buttons under each sensor */
+#list li button {
+  padding: 6px 12px;
+  margin-left: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fffefb;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* Hover effect */
+#list li button:hover {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(79, 107, 87, 0.2);
+}
+
+#list li button:last-of-type {
+  background: #fef2f2;
+  border-color: #f5c2c2;
+  color: #b32626;
+}
+
+#list li button:last-of-type:hover {
+  background: #e63946;
+  color: #fff;
+  border-color: #e63946;
 }
 
 /* Animation */
