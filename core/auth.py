@@ -3,6 +3,7 @@ from ninja import Router
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
+from ninja.responses import Response
 
 router = Router()
 
@@ -18,6 +19,6 @@ def register(request, username: str, password: str):
 def login(request, username: str, password: str):
     user = authenticate(username=username, password=password)
     if not user:
-        return {"error": "Invalid credentials"}
+        return Response({"detail": "Invalid username or password"}, status=401)
     token, created = Token.objects.get_or_create(user=user) # Gets existing token or creates one if not exist
     return {"token": token.key}
