@@ -34,13 +34,6 @@
       <h3>Readings</h3>
       <ul id="list"></ul>
 
-      <!-- Readings pagination -->
-      <div id="rPager" hidden>
-        <button id="rPrev">Prev</button>
-        <span id="rPageInfo"></span>
-        <button id="rNext">Next</button>
-      </div>
-
       <hr />
 
       <!-- Add a new reading (temperature, humidity and timestamp) -->
@@ -87,9 +80,6 @@
         return id;
       }
 
-      // Pagination + filter state for readings
-      let rState = { page: 1 };
-
       // Build query string for timestamp filters in ISO 8601 format
       function buildQuery() {
         const from = document.getElementById("from").value;
@@ -97,7 +87,6 @@
         const qs = [];
         if (from) qs.push("timestamp_from=" + new Date(from).toISOString());
         if (to) qs.push("timestamp_to=" + new Date(to).toISOString());
-        if (rState.page > 1) qs.push("page=" + String(rState.page));
 
         return qs.length ? "?" + qs.join("&") : "";
       }
@@ -175,28 +164,12 @@
         const data = await res.json(); // expect array sorted by newest first
         // Support both array and paginated responses
         const items = Array.isArray(data) ? data : data.items || [];
-        const page = Array.isArray(data)
-          ? rState.page || 1
-          : (data.page ?? rState.page ?? 1);
-
-        const perPage = Array.isArray(data)
-          ? items.length
-          : (data.page_size ?? items.length);
-
-        const count = Array.isArray(data)
-          ? items.length
-          : (data.count ?? items.length);
-
-        const pages = Array.isArray(data)
-          ? 1
-          : (data.pages ?? Math.max(1, Math.ceil(count / (perPage || 1))));
 
         const ul = document.getElementById("list");
         ul.innerHTML = "";
         if (!items.length) {
           ul.innerHTML = "<li>No readings.</li>";
-          // Hide pager when there are no items
-          document.getElementById("rPager").hidden = true;
+
           // Optional: destroy chart so an old chart isn’t shown
           if (window.chart && typeof window.chart.destroy === "function") {
             window.chart.destroy();
@@ -213,40 +186,6 @@
 
         // Draw chart after loading readings
         renderChart(items);
-
-        //  Update pager UI
-        const rPager = document.getElementById("rPager");
-        const rPrev = document.getElementById("rPrev");
-        const rNext = document.getElementById("rNext");
-        const rPageInfo = document.getElementById("rPageInfo");
-
-        if (pages <= 1) {
-          rPager.hidden = true;
-        } else {
-          rPager.hidden = false;
-          rPageInfo.textContent = `Page ${page} / ${pages}`;
-          rPrev.disabled = page <= 1;
-          rNext.disabled = page >= pages;
-
-          rPrev.onclick = () => {
-            if (rState.page > 1) {
-              rState.page -= 1;
-              loadReadings().catch((err) => alert(err.message));
-            }
-          };
-          rNext.onclick = () => {
-            if (rState.page < pages) {
-              rState.page += 1;
-              loadReadings().catch((err) => alert(err.message));
-            }
-          };
-        }
-
-        // If filters push us beyond last page, go back
-        if (items.length === 0 && rState.page > 1 && pages && page > pages) {
-          rState.page = pages;
-          await loadReadings();
-        }
       }
 
       // Reload list when user clicks "Filter"
@@ -254,7 +193,6 @@
         .getElementById("filterForm")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-          rState.page = 1; // start over on page 1 when filtering
 
           try {
             await loadReadings();
@@ -301,7 +239,6 @@
           }
 
           // Reload list and clear from fields
-          rState.page = 1;
           await loadReadings();
           document.getElementById("temp").value = "";
           document.getElementById("hum").value = "";
