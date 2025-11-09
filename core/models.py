@@ -20,6 +20,7 @@ class Reading(models.Model):
 
     class Meta:
         ordering = ["timestamp"]
+        unique_together = ("sensor", "timestamp")
 
         def __str__(self):
             return f"{self.sensor.name} - {self.timestamp}"   
