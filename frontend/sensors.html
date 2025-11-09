@@ -18,6 +18,13 @@
       <form id="searchForm" class="sensor-form">
         <input id="q" placeholder="Search by name or type" />
         <button type="submit">Search</button>
+        <span
+          id="loading"
+          class="spinner"
+          hidden
+          aria-live="polite"
+          title="Loading"
+        ></span>
       </form>
 
       <!-- Create a new sensor form -->
@@ -47,7 +54,7 @@
 
       // Store current search text
       let searchState = { q: "" };
-      // Build the search part of the UR, example: ?q=temperature
+      // Build the search part of the URL, example: ?q=temperature
       function buildQS() {
         const p = new URLSearchParams();
         if (searchState.q) p.set("q", searchState.q.trim()); // If user typed something, add it
@@ -58,6 +65,9 @@
       // Load all sensors that belong to the logged-in user
       async function loadSensors() {
         const token = getToken();
+        const loader = document.getElementById("loading");
+        // Show loader while fetching
+        loader.hidden = false; // show
         try {
           // GET /api/sensors (requires Bearer token)
           const res = await fetch(
@@ -109,6 +119,9 @@
           }
         } catch (err) {
           alert("Error: " + err.message);
+        } finally {
+          // Always hide loader when done (success or error)
+          loader.hidden = true; // hide
         }
       }
 
