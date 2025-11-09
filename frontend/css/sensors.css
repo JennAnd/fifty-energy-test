@@ -212,6 +212,40 @@ header h1 {
   display: none !important;
 }
 
+/* --- Pagination styling --- */
+#pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 15px;
+}
+
+#pager button {
+  background-color: #1b4332;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#pager button:hover:not(:disabled) {
+  background-color: #2d6a4f;
+}
+
+#pager button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+#pageInfo {
+  color: #333;
+  font-weight: 500;
+}
+
 /* Animation */
 @keyframes spin {
   to {

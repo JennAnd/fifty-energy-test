@@ -36,8 +36,15 @@
 
       <hr />
 
-      <!-- List of all sensors for this user -->
+      <!-- List of all sensors for this user-->
       <ul id="list"></ul>
+
+      <!-- Pagination control (prev page and next page)-->
+      <div id="pager" hidden>
+        <button id="prevBtn">Prev</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn">Next</button>
+      </div>
     </div>
 
     <script>
@@ -52,12 +59,14 @@
         return t;
       }
 
-      // Store current search text
-      let searchState = { q: "" };
+      // Keeps current search text and active page so we can rebuild the query string
+      let searchState = { q: "", page: 1 };
       // Build the search part of the URL, example: ?q=temperature
       function buildQS() {
         const p = new URLSearchParams();
         if (searchState.q) p.set("q", searchState.q.trim()); // If user typed something, add it
+        if (searchState.page > 1) p.set("page", String(searchState.page));
+
         // If something was added return it with ?, otherwise return nothing
         return p.toString() ? "?" + p.toString() : "";
       }
@@ -90,6 +99,7 @@
 
           // Parse JSON response
           const data = await res.json();
+
           // Support both array and paginated formats
           const items = Array.isArray(data) ? data : data.items || [];
 
@@ -116,6 +126,45 @@
 
               ul.appendChild(li);
             });
+          }
+
+          // Pagination
+          const pager = document.getElementById("pager");
+          const prevBtn = document.getElementById("prevBtn");
+          const nextBtn = document.getElementById("nextBtn");
+          const pageInfo = document.getElementById("pageInfo");
+
+          if (Array.isArray(data)) {
+            // Non-paginated response - hide pager
+            pager.hidden = true;
+          } else {
+            const TOTAL = Number(data.count ?? 0);
+            const PAGE_SIZE = 10;
+            const page = Number(searchState.page || 1);
+            const pages = Math.max(1, Math.ceil(TOTAL / PAGE_SIZE));
+
+            // Show pager only if there is more than one page
+            pager.hidden = pages <= 1;
+
+            // Update text and button states
+            pageInfo.textContent = `Page ${page} / ${pages}`;
+            prevBtn.disabled = page <= 1;
+            nextBtn.disabled = page >= pages;
+
+            // Wire up the buttons to update state and reload
+            prevBtn.onclick = () => {
+              if (searchState.page > 1) {
+                searchState.page -= 1;
+                loadSensors().catch((err) => alert(err.message));
+              }
+            };
+            nextBtn.onclick = () => {
+              const max = pages || searchState.page + 1;
+              if (searchState.page < max) {
+                searchState.page += 1;
+                loadSensors().catch((err) => alert(err.message));
+              }
+            };
           }
         } catch (err) {
           alert("Error: " + err.message);
@@ -235,6 +284,8 @@
           alert("Failed to delete: " + (text || res.status));
           return;
         }
+
+        if (searchState.page > 1) searchState.page -= 1;
         loadSensors(); // reload list
       }
 
@@ -242,6 +293,8 @@
       document.getElementById("searchForm").addEventListener("submit", (e) => {
         e.preventDefault(); // Stop page from reloading
         searchState.q = document.getElementById("q").value;
+        searchState.page = 1; // reset page on new search
+
         loadSensors().catch((err) => alert(err.message));
       });
 

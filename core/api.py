@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
 from ninja.responses import Response
 
-
 # Checks if the token belongs to a real user
 class TokenAuth(HttpBearer):
     def authenticate(self, request, token): # Runs when someone sends a request with a token
@@ -21,9 +20,32 @@ class TokenAuth(HttpBearer):
             return user # If correct token return the user
         except Token.DoesNotExist:
             return None
-    
+
 # Create a router to handle API endpoints related to sensors
 router = Router()
+# Router for all reading endpoints
+readings_router = Router(auth=TokenAuth())
+
+# Readings list (paginated and optional filter)
+@readings_router.get("/sensors/{sensor_id}/readings", response=List[ReadingOut])
+@paginate(PageNumberPagination, page_size=20) 
+def list_readings(
+    request,
+    sensor_id: int,
+    timestamp_from: Optional[str] = None,
+    timestamp_to: Optional[str] = None,
+):
+    sensor = get_object_or_404(Sensor, id=sensor_id, owner=request.auth)
+    readings = Reading.objects.filter(sensor=sensor)
+    if timestamp_from:
+        dt_from = parse_datetime(timestamp_from)
+        if dt_from:
+            readings = readings.filter(timestamp__gte=dt_from)
+    if timestamp_to:
+        dt_to = parse_datetime(timestamp_to)
+        if dt_to:
+            readings = readings.filter(timestamp__lte=dt_to)
+    return readings.order_by("-timestamp")
 
 # Endpoint to get a list of all sensors from the database
 @router.get("/sensors", response=List[SensorOut], auth=TokenAuth()) # Requires valid endpoint to access this endpoint
@@ -70,36 +92,6 @@ def delete_sensor(request, sensor_id: int):
     sensor = _get_owned_sensor(request.auth, sensor_id)
     sensor.delete()
     return Response({}, status=204) 
-
-# Router for all reading endpoints
-readings_router = Router(auth=TokenAuth())
-
-# Get endpoint to list readings for a specific sensor
-@readings_router.get("/sensors/{sensor_id}/readings", response=List[ReadingOut])
-def list_readings(
-    request,
-    sensor_id: int,
-    timestamp_from: Optional[str] = None,
-    timestamp_to: Optional[str] = None,
-
-):
-    # Get sensor that belongs to logged-in user
-    sensor = get_object_or_404(Sensor, id=sensor_id, owner=request.auth)
-
-    # Get readings that belong to this sensor
-    readings = Reading.objects.filter(sensor=sensor)
-
-    if timestamp_from:
-        dt_from = parse_datetime(timestamp_from)
-        if dt_from:
-            readings = readings.filter(timestamp__gte=dt_from)
-    if timestamp_to:
-        dt_to = parse_datetime(timestamp_to)
-        if dt_to:
-            readings = readings.filter(timestamp__lte=dt_to)
-
-    # Return readings ordered ny newest first
-    return readings.order_by("-timestamp")
 
 # Post endpoint to create a new reading for a specific sensor
 @readings_router.post("/sensors/{sensor_id}/readings", response=ReadingOut)
