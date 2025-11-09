@@ -28,7 +28,6 @@ readings_router = Router(auth=TokenAuth())
 
 # Readings list (paginated and optional filter)
 @readings_router.get("/sensors/{sensor_id}/readings", response=List[ReadingOut])
-@paginate(PageNumberPagination, page_size=20) 
 def list_readings(
     request,
     sensor_id: int,
