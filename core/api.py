@@ -1,6 +1,7 @@
 # Router file for the core app
 from ninja import Router
 from .models import Sensor, Reading
+from django.db import IntegrityError
 from typing import List
 from .schemas import SensorCreate, SensorOut, ReadingCreate, ReadingOut
 from ninja.security import HttpBearer
@@ -38,12 +39,16 @@ def list_readings(
     readings = Reading.objects.filter(sensor=sensor)
     if timestamp_from:
         dt_from = parse_datetime(timestamp_from)
-        if dt_from:
-            readings = readings.filter(timestamp__gte=dt_from)
+        if not dt_from:
+            return Response({"detail": "Invalid timestamp_from (use ISO 8601)"}, status=400)
+        readings = readings.filter(timestamp__gte=dt_from)
+
     if timestamp_to:
         dt_to = parse_datetime(timestamp_to)
-        if dt_to:
-            readings = readings.filter(timestamp__lte=dt_to)
+        if not dt_to:
+            return Response({"detail": "Invalid timestamp_to (use ISO 8601)"}, status=400)
+        readings = readings.filter(timestamp__lte=dt_to)
+
     return readings.order_by("-timestamp")
 
 # Endpoint to get a list of all sensors from the database
@@ -60,8 +65,12 @@ def list_sensors(request, q: Optional[str]= None):
 # Logged in user can create a new sensor in the database
 @router.post("/sensors", response=SensorOut, auth=TokenAuth())
 def create_sensor(request, data: SensorCreate):
-    sensor = Sensor.objects.create(**data.dict(), owner=request.auth) # Creates a new sensor using the data from the schema
+    name = (data.name or "").strip()
+    type_ = (data.type or "").strip()
+    if not name or not type_:
+        return Response({"detail": "name and type are required"}, status=400)
 
+    sensor = Sensor.objects.create(name=name, type=type_, owner=request.auth)
     return sensor
 
 # Get one sensor owned by user
@@ -80,8 +89,14 @@ def get_sensor(request, sensor_id: int):
 @router.put("/sensors/{sensor_id}", response=SensorOut, auth=TokenAuth())
 def update_sensor(request, sensor_id: int, data: SensorCreate):
     sensor = _get_owned_sensor(request.auth, sensor_id)
+    
+    name = (data.name or "").strip()
+    type_ = (data.type or "").strip()
+    if not name or not type_:
+        return Response({"detail": "name and type are required"}, status=400)
+
     sensor.name = data.name
-    sensor.type = data.type
+    sensor.type = type_
     sensor.save()
     return sensor 
 
@@ -98,14 +113,27 @@ def create_reading(request, sensor_id: int, data: ReadingCreate):
 
     sensor = get_object_or_404(Sensor, id=sensor_id, owner=request.auth)
 
-    # Create a new reading in the database using data from the request body
-    reading = Reading.objects.create(
-        sensor=sensor,
-        temperature=data.temperature,
-        humidity=data.humidity,
-        timestamp=data.timestamp,
-    )
+    if data.humidity is not None:
+        try:
+            h = float(data.humidity)
+            if h < 0 or h > 100:
+                return Response({"detail": "humidity must be between 0 and 100"}, status=400)
+        except (TypeError, ValueError):
+            return Response({"detail": "humidity must be a number"}, status=400)
 
-    return reading
+    # Create a new reading in the database using data from the request body
+    try:
+        reading = Reading.objects.create(
+            sensor=sensor,
+            temperature=data.temperature,
+            humidity=data.humidity,
+            timestamp=data.timestamp,
+     )
+
+    except IntegrityError:
+        # träffar unique_together (sensor, timestamp)
+        return Response({"detail": "Reading for this timestamp already exists for this sensor"}, status=400)
+
+    return Response(ReadingOut.from_orm(reading).dict(), status=201)
 
 

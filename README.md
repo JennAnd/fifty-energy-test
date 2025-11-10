@@ -14,7 +14,7 @@ A fullstack application for managing sensors and their readings.
 
 ```
 backend/        # Django configuration (settings, urls, etc.)
-core/              # Main Django app (models, API, management commands)
+core/        # Main Django app (models, API, management commands)
 frontend/       # Static HTML, CSS, and JS
 sensor_readings_wide.csv
 docker-compose.yml
@@ -48,9 +48,9 @@ POSTGRES_PORT=5432
 
 ```bash
 docker compose down -v      # optional cleanup
-make up                                 # build and start containers
-make migrate                        # apply migrations
-make seed                             # load demo data from CSV
+make up      # build and start containers
+make migrate      # apply migrations
+make seed      # load demo data from CSV
 ```
 
 ---
