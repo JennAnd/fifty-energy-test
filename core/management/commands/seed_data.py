@@ -7,6 +7,7 @@ from core.models import Reading
 import csv
 from pathlib import Path
 from django.utils.dateparse import parse_datetime
+from django.db import IntegrityError
 
 # List of sensors to add for the test user
 SENSORS = [
@@ -63,13 +64,17 @@ class Command(BaseCommand):
                     continue  # skip bad timestamps
 
                 # Create a Reading linked to the sensor
-                Reading.objects.create(
-                    sensor=sensor,
-                    temperature=float(row["temperature"]),
-                    humidity=float(row["humidity"]),
-                    timestamp=ts,
-                )
-                created_count += 1
+                try:
+                    Reading.objects.create(
+                        sensor=sensor,
+                        temperature=float(row["temperature"]),
+                        humidity=float(row["humidity"]),
+                        timestamp=ts,
+                    )
+                    created_count += 1
+                except IntegrityError:
+                    # Skip duplicate readings for same (sensor, timestamp)
+                    continue
 
      
         # Print a success message in the terminal when seeding is done
